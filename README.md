@@ -9,14 +9,10 @@ is not the goal — consistency is. Module 7 must look like module 1.
 ## Pipeline reference
 
 [pipeline.html](pipeline.html) is the whole pipeline on one page — flow diagram, all sixteen
-stages, the eight human gates, the agent roster, and the skill index. Open it locally, or read
-the published copy:
+stages, the eight human gates, the agent roster, and the skill index. Open it in a browser
+straight from the repo; it is a single self-contained file with no build step.
 
-<https://claude.ai/code/artifact/0e8c2e69-1f67-41a9-ad11-c3d8046f0f47>
-
-To update the published page after editing `pipeline.html`, republish it to that same URL rather
-than as a new artifact — publishing without the URL creates a separate page and the link above
-goes stale.
+This file is the single source of truth for the pipeline. Edit it here.
 
 ## Install
 
