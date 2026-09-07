@@ -951,3 +951,89 @@ flowchart TD
     </footer>
   </main>
 </div>
+
+<script>
+  /* Renders the <pre class="mermaid"> block when this file is opened directly
+     in a browser. Hosts that render mermaid themselves (Artifacts, GitHub
+     preview) replace the <pre> with an <svg>, so we bail out in that case. */
+  (function () {
+    var CDN = "https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js";
+
+    function isDark() {
+      var t = document.documentElement.getAttribute("data-theme");
+      if (t) return t === "dark";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+
+    var source = null;
+
+    function token(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function render() {
+      var el = document.querySelector("pre.mermaid");
+      if (!el || el.querySelector("svg") || el.dataset.processed) return;
+      source = el.innerHTML;
+
+      var s = document.createElement("script");
+      s.src = CDN;
+      s.onload = function () {
+        /* Wait for the webfont — mermaid sizes each node from measured text,
+           and measuring against the fallback face clips the labels. */
+        var fonts = document.fonts ? document.fonts.ready : Promise.resolve();
+        fonts.then(function () { draw(el); });
+      };
+      document.head.appendChild(s);
+    }
+
+    function draw(el) {
+      /* mermaid auto-runs itself once it loads, with its default config, and
+         stamps the node as processed. Restore the source so our themed render
+         is the one that sticks. */
+      el.removeAttribute("data-processed");
+      el.innerHTML = source;
+
+      window.mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "loose",
+        theme: "base",
+        flowchart: { htmlLabels: true, curve: "basis" },
+        themeVariables: {
+          fontFamily: token("--f-body") || "system-ui, sans-serif",
+          fontSize: "13px",
+          background: token("--surface"),
+          mainBkg: token("--surface-2"),
+          primaryColor: token("--surface-2"),
+          primaryTextColor: token("--ink"),
+          primaryBorderColor: token("--ink-faint"),
+          secondaryColor: token("--blue-soft"),
+          tertiaryColor: token("--surface"),
+          nodeBorder: token("--ink-faint"),
+          textColor: token("--ink"),
+          lineColor: token("--ink-soft"),
+          clusterBkg: isDark() ? token("--paper") : token("--surface"),
+          clusterBorder: token("--rule"),
+          titleColor: token("--ink-soft"),
+          edgeLabelBackground: token("--surface")
+        }
+      });
+      window.mermaid.run({ nodes: [el] });
+    }
+
+    function rerender() {
+      var el = document.querySelector("pre.mermaid");
+      if (!el || source === null || !window.mermaid) return;
+      draw(el);
+    }
+
+    /* Give a host renderer a tick to claim the block first. */
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () { setTimeout(render, 60); });
+    } else {
+      setTimeout(render, 60);
+    }
+
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rerender);
+  })();
+</script>
