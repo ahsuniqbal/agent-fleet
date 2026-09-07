@@ -1,0 +1,953 @@
+<title>Agent Fleet Pipeline</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper:      #F1F2EE;
+    --surface:    #FAFAF8;
+    --surface-2:  #E9EBE5;
+    --ink:        #14181A;
+    --ink-soft:   #59635F;
+    --ink-faint:  #8A928D;
+    --rule:       #DBDDD5;
+    --rule-soft:  #E6E8E1;
+    --blue:       #1F4E79;
+    --blue-soft:  #E2EAF1;
+    --amber:      #96600A;
+    --amber-soft: #F4E8D0;
+    --amber-line: #C89029;
+
+    --f-head: "IBM Plex Sans Condensed", "Helvetica Neue", Arial, sans-serif;
+    --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+    --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 72px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #14171A;
+      --surface:    #1B1F22;
+      --surface-2:  #23282B;
+      --ink:        #E7EAE4;
+      --ink-soft:   #9BA39D;
+      --ink-faint:  #6E7772;
+      --rule:       #2E3438;
+      --rule-soft:  #252A2E;
+      --blue:       #8CBAE3;
+      --blue-soft:  #1D2A36;
+      --amber:      #DFAB4E;
+      --amber-soft: #2C2418;
+      --amber-line: #8A6520;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #14171A;
+    --surface:    #1B1F22;
+    --surface-2:  #23282B;
+    --ink:        #E7EAE4;
+    --ink-soft:   #9BA39D;
+    --ink-faint:  #6E7772;
+    --rule:       #2E3438;
+    --rule-soft:  #252A2E;
+    --blue:       #8CBAE3;
+    --blue-soft:  #1D2A36;
+    --amber:      #DFAB4E;
+    --amber-soft: #2C2418;
+    --amber-line: #8A6520;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: var(--s-6) var(--s-5) var(--s-8);
+    gap: var(--s-7);
+  }
+  @media (min-width: 1000px) {
+    .shell {
+      grid-template-columns: 168px minmax(0, 1fr);
+      column-gap: var(--s-7);
+      padding: var(--s-7) var(--s-6) var(--s-8);
+    }
+  }
+
+  /* ---- rail ---- */
+  .rail { display: none; }
+  @media (min-width: 1000px) {
+    .rail {
+      display: block;
+      position: sticky;
+      top: var(--s-6);
+      align-self: start;
+      grid-row: 1 / span 2;
+      border-top: 2px solid var(--ink);
+      padding-top: var(--s-3);
+    }
+  }
+  .rail-title {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: var(--s-3);
+  }
+  .rail nav { display: flex; flex-direction: column; gap: 1px; }
+  .rail a {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 3px 0 3px var(--s-2);
+    border-left: 2px solid var(--rule);
+    transition: color .12s, border-color .12s;
+  }
+  .rail a:hover { color: var(--ink); border-left-color: var(--blue); }
+  .rail a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  main { grid-column: 1 / -1; min-width: 0; }
+  @media (min-width: 1000px) { main { grid-column: 2; } }
+
+  /* ---- masthead ---- */
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: var(--s-5); }
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: var(--s-3);
+  }
+  h1 {
+    font-family: var(--f-head);
+    font-weight: 700;
+    font-size: clamp(34px, 6vw, 56px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 var(--s-4);
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 var(--s-5);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  /* ---- sections ---- */
+  section { margin-top: var(--s-8); scroll-margin-top: var(--s-5); }
+  h2 {
+    font-family: var(--f-head);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 var(--s-2);
+    padding-bottom: var(--s-2);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s-4);
+  }
+  h2 .h2-note {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--ink-faint);
+    font-weight: 400;
+  }
+  .lede { color: var(--ink-soft); max-width: 66ch; margin: var(--s-4) 0 var(--s-5); }
+  p { max-width: 66ch; }
+
+  /* ---- rules ---- */
+  .rules { display: grid; gap: var(--s-4); margin-top: var(--s-5); }
+  @media (min-width: 720px) { .rules { grid-template-columns: repeat(3, 1fr); } }
+  .rule-card {
+    border-top: 2px solid var(--blue);
+    padding-top: var(--s-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+  }
+  .rule-card h3 {
+    font-family: var(--f-head);
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .rule-card p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+
+  /* ---- spine tree ---- */
+  .tree {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    line-height: 1.85;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: var(--s-5);
+    overflow-x: auto;
+    margin-top: var(--s-5);
+    white-space: pre;
+    color: var(--ink-soft);
+  }
+  .tree b { color: var(--ink); font-weight: 600; }
+  .tree i { color: var(--amber); font-style: normal; }
+  .tree .c { color: var(--ink-faint); }
+
+  /* ---- diagram ---- */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: var(--s-5);
+    overflow-x: auto;
+    margin-top: var(--s-5);
+  }
+  .diagram pre { margin: 0; }
+
+  /* ---- stage list ---- */
+  .stages { margin-top: var(--s-5); border-top: 1px solid var(--rule); }
+
+  .stage {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 0 var(--s-4);
+    padding: var(--s-4) 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: start;
+  }
+  @media (min-width: 800px) {
+    .stage { grid-template-columns: 52px 150px minmax(0, 1fr); }
+  }
+  .stage-code {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+    font-variant-numeric: tabular-nums;
+    padding-top: 1px;
+  }
+  .stage-agent {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+    padding-top: 2px;
+  }
+  @media (max-width: 799px) {
+    .stage-agent { grid-column: 2; margin-bottom: var(--s-1); }
+    .stage-body { grid-column: 2; }
+  }
+  .stage-body { min-width: 0; }
+  .stage-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-bottom: var(--s-2);
+  }
+  .skill {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink);
+    background: var(--blue-soft);
+    border: 1px solid transparent;
+    padding: 1px 6px;
+  }
+  .stage-out {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .stage-out code {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    color: var(--ink);
+  }
+
+  .gate {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-2) var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    margin: 0;
+    background: var(--amber-soft);
+    border-bottom: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--amber-line);
+  }
+  .gate-label {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 600;
+  }
+  .gate-text { font-size: 13.5px; color: var(--ink); }
+  .gate.freeze { border-left-width: 6px; }
+  .gate.freeze .gate-text { font-weight: 600; }
+
+  .parallel {
+    border-left: 3px solid var(--blue);
+    padding-left: var(--s-4);
+    margin-left: 0;
+  }
+  .parallel-flag {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    padding: var(--s-3) 0 var(--s-1) var(--s-4);
+  }
+  .loopback {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    padding: var(--s-4) 0 0;
+  }
+  .loopback b { color: var(--ink); }
+
+  /* ---- agents ---- */
+  .agents { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-top: var(--s-5); }
+  @media (min-width: 640px) { .agents { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 980px) { .agents { grid-template-columns: repeat(3, 1fr); } }
+  .agent {
+    background: var(--surface);
+    padding: var(--s-4) var(--s-4) var(--s-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+  }
+  .agent-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+  .agent h3 {
+    font-family: var(--f-mono);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ink);
+  }
+  .model {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .agent p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .agent-skills {
+    display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-2);
+    font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-soft);
+    margin-top: auto; padding-top: var(--s-2);
+  }
+  .agent-skills span { border-bottom: 1px solid var(--rule); }
+
+  /* ---- table ---- */
+  .table-wrap { overflow-x: auto; margin-top: var(--s-5); border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--surface); }
+  thead th {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-align: left;
+    font-weight: 500;
+    padding: var(--s-3) var(--s-4);
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  tbody td { padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-family: var(--f-mono); color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  td.sk { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
+  td.ag { font-family: var(--f-mono); font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+  td.st { font-family: var(--f-mono); font-size: 12.5px; color: var(--blue); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.io { color: var(--ink-soft); min-width: 260px; }
+  td.io code { font-family: var(--f-mono); font-size: 12px; color: var(--ink); }
+  tbody tr.phase-a td.st { color: var(--ink-soft); }
+
+  /* ---- install ---- */
+  .install {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--blue);
+    padding: var(--s-4) var(--s-5);
+    overflow-x: auto;
+    margin-top: var(--s-5);
+    white-space: pre;
+    line-height: 1.9;
+  }
+  .install .c { color: var(--ink-faint); }
+
+  .cmds { margin-top: var(--s-5); display: grid; gap: var(--s-3); }
+  .cmd { display: flex; gap: var(--s-4); align-items: baseline; flex-wrap: wrap; }
+  .cmd code {
+    font-family: var(--f-mono); font-size: 13px; color: var(--ink);
+    background: var(--surface-2); padding: 2px 7px;
+  }
+  .cmd span { font-size: 13.5px; color: var(--ink-soft); }
+
+  footer {
+    margin-top: var(--s-8);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--rule);
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s-3);
+  }
+
+  a { color: var(--blue); }
+  a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="rail-title">Contents</div>
+    <nav>
+      <a href="#rules">Three rules</a>
+      <a href="#spine">Document spine</a>
+      <a href="#flow">Flow</a>
+      <a href="#phase-a">Phase A</a>
+      <a href="#phase-b">Phase B</a>
+      <a href="#agents">Agents</a>
+      <a href="#skills">Skill index</a>
+      <a href="#install">Install</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="masthead">
+      <div class="eyebrow">Delivery pipeline · agent-fleet v0.1.0</div>
+      <h1>Agent Fleet Pipeline</h1>
+      <p class="standfirst">
+        Seven role agents and twenty-six skills carrying a client brief from the first call to
+        shipped modules. Modules ship one at a time in dependency order — throughput is not the
+        goal, consistency is. Module 7 must look like module 1.
+      </p>
+      <div class="meta">
+        <span><b>7</b> agents</span>
+        <span><b>26</b> skills</span>
+        <span><b>16</b> stages</span>
+        <span><b>8</b> human gates</span>
+        <span><b>1</b> parallel branch</span>
+      </div>
+    </header>
+
+    <section id="rules">
+      <h2>The three rules <span class="h2-note">everything else is procedure</span></h2>
+      <p class="lede">
+        Agents have no memory between runs. A human colleague carries the client call in their
+        head; an agent starts blank every invocation. These three rules are what replace that.
+      </p>
+      <div class="rules">
+        <div class="rule-card">
+          <h3>M.0 preamble</h3>
+          <p>
+            Every agent reads <code>inventory.md</code> before doing anything. No exceptions.
+            Skipping it is how the same component gets built twice.
+          </p>
+        </div>
+        <div class="rule-card">
+          <h3>Reuse plan is binding</h3>
+          <p>
+            Every module spec classifies each capability as <b>reuse</b>, <b>extend</b>, or
+            <b>new</b> against the inventory. Every <b>new</b> carries a justification, or the
+            gate rejects it.
+          </p>
+        </div>
+        <div class="rule-card">
+          <h3>Rule of two</h3>
+          <p>
+            Nothing becomes shared on first use — anticipated abstractions are shaped wrong.
+            Entities are the exception: migrating a table across shipped modules costs far more
+            than moving a component.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="spine">
+      <h2>Document spine <span class="h2-note">each stage reads the previous file, writes the next</span></h2>
+      <div class="tree"><b>docs/</b>
+  <b>00-global/</b>
+    requirements.md     <span class="c">whole product, one truth</span>
+    module-map.md       <span class="c">dependency graph + ordered build queue</span>
+    architecture.md     <span class="c">services, boundaries, cross-cutting</span>
+    design-system.md    <span class="c">tokens</span>
+    data-model.md       <span class="c">shared entities only</span>
+    <i>inventory.md</i>       <i>THE REUSE LEDGER — read at M.0, every module</i>
+    CHANGELOG.md        <span class="c">what got promoted to shared, and when</span>
+  <b>modules/</b>
+    <b>01-&lt;name&gt;/</b>
+      brd.md            <span class="c">features, edge cases, acceptance criteria</span>
+      spec.md           <span class="c">technical grooming + reuse plan</span>
+      design-spec.md    <span class="c">tokens, states, breakpoints, data binding</span>
+      data-model.md     <span class="c">module-owned tables only</span>
+      api-contract.md   <span class="c">frozen before build starts</span>
+      summary.md        <span class="c">written at close, feeds the inventory</span></div>
+    </section>
+
+    <section id="flow">
+      <h2>Flow <span class="h2-note">gates in amber are hard stops</span></h2>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TD
+    Start([Client call]) --> F0
+
+    subgraph PA["PHASE A · FOUNDATION — once per project"]
+    direction TB
+        F0["F.0 requirements-intake<br/>product-owner"]
+        GA1{{"GATE · CLIENT<br/>scope agreed"}}
+        F1["F.1 module-decomposition<br/>product-owner"]
+        GA2{{"GATE · YOU<br/>approve build order"}}
+        F2["F.2 service-design<br/>system-architect"]
+        F3["F.3 design-system<br/>ux-engineer"]
+        F4["F.4 component-library<br/>ux-engineer + frontend-builder"]
+        F5["F.5 foundation-schema<br/>backend-builder"]
+        F6["F.6 project-skeleton<br/>backend-builder"]
+        GA3{{"GATE · YOU<br/>foundation frozen"}}
+
+        F0 --> GA1 --> F1 --> GA2 --> F2
+        F2 --> F3 --> F4 --> GA3
+        F2 --> F5 --> F6 --> GA3
+    end
+
+    GA3 --> M0
+
+    subgraph PB["PHASE B · MODULE LOOP — one module at a time"]
+    direction TB
+        M0["M.0 read inventory.md<br/>every agent"]
+        M1["M.1 write-brd<br/>product-owner"]
+        GB1{{"GATE · CLIENT<br/>module scope"}}
+        M2["M.2 groom-module<br/>system-architect"]
+        GB2{{"GATE · YOU<br/>approve spec + reuse plan"}}
+        M3["M.3 schema-design<br/>backend-builder"]
+        M4["M.4 design-direction<br/>ux-engineer"]
+        GB3{{"GATE · YOU + CLIENT<br/>review canvas"}}
+        M5["M.5 api-contract<br/>system-architect"]
+        GB4{{"GATE · YOU<br/>CONTRACT FROZEN"}}
+        M6A["M.6a frontend-builder<br/>builds against mocks"]
+        M6B["M.6b backend-builder<br/>migrations, endpoints, authz"]
+        AM["amend-contract<br/>logged, both sides notified"]
+        M7["M.7 swap-mocks + e2e-verify<br/>integrator"]
+        M8["M.8 drift-check + code-review<br/>reviewer"]
+        GB5{{"GATE · YOU<br/>ship + demo"}}
+        M9["M.9 close-module<br/>reviewer"]
+
+        M0 --> M1 --> GB1 --> M2 --> GB2
+        GB2 --> M3
+        GB2 --> M4 --> GB3
+        M3 --> M5
+        GB3 --> M5
+        M5 --> GB4
+        GB4 --> M6A
+        GB4 --> M6B
+        M6A -.blocked.-> AM
+        M6B -.blocked.-> AM
+        AM -.re-freeze.-> GB4
+        M6A --> M7
+        M6B --> M7
+        M7 --> M8 --> GB5 --> M9
+    end
+
+    M9 --> Q{More modules<br/>in queue?}
+    Q -->|yes| M0
+    Q -->|no| Done([Project complete])
+</pre>
+      </div>
+    </section>
+
+    <section id="phase-a">
+      <h2>Phase A · Foundation <span class="h2-note">once per project</span></h2>
+      <p class="lede">
+        The global layer is not frozen all at once — you cannot know every shared entity before
+        building. What freezes here is the smallest thing that lets modules fan out safely:
+        tokens, primitives, shared entities, and a runnable shell.
+      </p>
+
+      <div class="stages">
+        <div class="stage">
+          <div class="stage-code">F.0</div>
+          <div class="stage-agent">product-owner</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">requirements-intake</span></div>
+            <div class="stage-out">Client input becomes <code>00-global/requirements.md</code> — stated vs assumed vs open, kept separate. Explicit out-of-scope.</div>
+          </div>
+        </div>
+
+        <div class="gate">
+          <span class="gate-label">Gate · Client</span>
+          <span class="gate-text">Open questions answered. Boundaries that affect module shape must resolve here.</span>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">F.1</div>
+          <div class="stage-agent">product-owner</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">module-decomposition</span></div>
+            <div class="stage-out">Entity-dependency graph, topological sort, ordered queue with one line of reasoning per position. Nothing is hardcoded into first place — auth usually lands there because most entities reference a user, but that is derived.</div>
+          </div>
+        </div>
+
+        <div class="gate">
+          <span class="gate-label">Gate · You</span>
+          <span class="gate-text">Approve or edit the <code>order:</code> list. A wrong order costs rework on every module after it.</span>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">F.2</div>
+          <div class="stage-agent">system-architect</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">service-design</span></div>
+            <div class="stage-out">Services, boundaries, cross-cutting owners, decisions with rationale. <b>Error shape and pagination style are decided here, once</b> — deferred, they get re-invented by every module.</div>
+          </div>
+        </div>
+
+        <div class="parallel-flag">Two independent chains</div>
+        <div class="parallel">
+          <div class="stage">
+            <div class="stage-code">F.3</div>
+            <div class="stage-agent">ux-engineer</div>
+            <div class="stage-body">
+              <div class="stage-skills"><span class="skill">design-system</span></div>
+              <div class="stage-out">Semantic tokens: color, type, spacing, radius, elevation, motion, focus, z-layers. Dark mode decided now, even if the answer is no.</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-code">F.4</div>
+            <div class="stage-agent">ux-engineer + frontend-builder</div>
+            <div class="stage-body">
+              <div class="stage-skills"><span class="skill">component-library</span></div>
+              <div class="stage-out">Roughly 10–12 primitives, each with full variant, state, and accessibility coverage. <b>No domain components</b> — rule of two governs those.</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-code">F.5</div>
+            <div class="stage-agent">backend-builder</div>
+            <div class="stage-body">
+              <div class="stage-skills"><span class="skill">foundation-schema</span></div>
+              <div class="stage-out">Entities referenced by two or more queued modules. Identity, timestamps, soft delete, tenancy, and audit decided once for the whole product.</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-code">F.6</div>
+            <div class="stage-agent">backend-builder</div>
+            <div class="stage-body">
+              <div class="stage-skills"><span class="skill">project-skeleton</span></div>
+              <div class="stage-out">Repo layout, routing shell, DB connection, migration runner, validated env config, error middleware, test harness, green CI.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gate freeze">
+          <span class="gate-label">Gate · You</span>
+          <span class="gate-text">Foundation frozen. Seed <code>inventory.md</code> with primitives, entities, and the patterns decided at F.2.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="phase-b">
+      <h2>Phase B · Module loop <span class="h2-note">repeat per module, in queue order</span></h2>
+      <p class="lede">
+        Serial delivery means each module ships demo-able, later modules learn from earlier ones,
+        and a contract amendment is cheap because only one module is ever in flight. The cost is
+        throughput — which is why the reviewer at M.8 matters more here than it would anywhere else.
+      </p>
+
+      <div class="stages">
+        <div class="stage">
+          <div class="stage-code">M.0</div>
+          <div class="stage-agent">every agent</div>
+          <div class="stage-body">
+            <div class="stage-out">Read <code>00-global/inventory.md</code>. Mandatory preamble in every agent's prompt.</div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.1</div>
+          <div class="stage-agent">product-owner</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">write-brd</span></div>
+            <div class="stage-out">Nineteen edge-case dimensions worked line by line: validation, permissions per role, ownership, concurrency, quotas, data lifecycle, bulk partial failure, side effects, time, import/export, offline. Acceptance criteria in Given/When/Then.</div>
+          </div>
+        </div>
+
+        <div class="gate">
+          <span class="gate-label">Gate · Client</span>
+          <span class="gate-text">Scope and acceptance criteria approved.</span>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.2</div>
+          <div class="stage-agent">system-architect</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">groom-module</span></div>
+            <div class="stage-out">Technical spec plus the <b>reuse plan</b> — every capability classified against the inventory. This table is what stops a serial pipeline producing seven applications wearing a trench coat.</div>
+          </div>
+        </div>
+
+        <div class="gate">
+          <span class="gate-label">Gate · You</span>
+          <span class="gate-text">Challenge every <b>new</b> verdict. If most rows are new by module 4, the inventory is not being read.</span>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.3</div>
+          <div class="stage-agent">backend-builder</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">schema-design</span></div>
+            <div class="stage-out">Module-owned tables. Shared entities referenced, never shadowed. Runs <b>before</b> the contract so schemas are grounded in real tables.</div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.4</div>
+          <div class="stage-agent">ux-engineer</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">design-direction</span></div>
+            <div class="stage-out">Two artifacts, both required: a <b>canvas</b> for you and the client, and <code>design-spec.md</code> for the builder — token names, component verdicts, every state, breakpoints, data binding, real copy.</div>
+          </div>
+        </div>
+
+        <div class="gate">
+          <span class="gate-label">Gate · You + Client</span>
+          <span class="gate-text">Review the canvas.</span>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.5</div>
+          <div class="stage-agent">system-architect</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">api-contract</span></div>
+            <div class="stage-out">Reads the data model so schemas describe fields that exist, and the design spec so endpoints return fields the screens need. Every error specified. Examples realistic — mocks are generated from them.</div>
+          </div>
+        </div>
+
+        <div class="gate freeze">
+          <span class="gate-label">Gate · You</span>
+          <span class="gate-text">Contract frozen. This gate is the only reason the next stage can run in parallel.</span>
+        </div>
+
+        <div class="parallel-flag">Parallel — the pipeline's only concurrency</div>
+        <div class="parallel">
+          <div class="stage">
+            <div class="stage-code">M.6a</div>
+            <div class="stage-agent">frontend-builder</div>
+            <div class="stage-body">
+              <div class="stage-skills">
+                <span class="skill">read-design-spec</span>
+                <span class="skill">build-component</span>
+                <span class="skill">compose-page</span>
+                <span class="skill">wire-api-client</span>
+              </div>
+              <div class="stage-out">Builds against mocks generated from the contract — success, empty, multi-page, every specified error, and slow.</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-code">M.6b</div>
+            <div class="stage-agent">backend-builder</div>
+            <div class="stage-body">
+              <div class="stage-skills">
+                <span class="skill">migrations</span>
+                <span class="skill">api-endpoint</span>
+                <span class="skill">auth-authz</span>
+              </div>
+              <div class="stage-out">Reversible migrations, handlers matching the contract exactly, an explicit authorization decision on every endpoint including the ones that look public.</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-code">↺</div>
+            <div class="stage-agent">system-architect</div>
+            <div class="stage-body">
+              <div class="stage-skills"><span class="skill">amend-contract</span></div>
+              <div class="stage-out">The escape hatch. A blocked builder never works around the contract locally — the change is logged, examples updated, both sides notified, contract re-frozen.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.7</div>
+          <div class="stage-agent">integrator</div>
+          <div class="stage-body">
+            <div class="stage-skills">
+              <span class="skill">swap-mocks</span>
+              <span class="skill">e2e-verify</span>
+            </div>
+            <div class="stage-out">Reconcile before wiring: diff the contract, the backend, and the frontend. Divergences are resolved by fixing a side or amending — never by a translation shim. Then the BRD's acceptance criteria become the e2e suite.</div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.8</div>
+          <div class="stage-agent">reviewer</div>
+          <div class="stage-body">
+            <div class="stage-skills">
+              <span class="skill">drift-check</span>
+              <span class="skill">promote-shared</span>
+            </div>
+            <div class="stage-out">Consistency, not correctness — <code>/code-review</code> handles bugs. Duplicated components matched by behaviour rather than name, hardcoded values, endpoint convention drift, shadowed entities. Verdicts: promote, refactor, accept.</div>
+          </div>
+        </div>
+
+        <div class="gate">
+          <span class="gate-label">Gate · You</span>
+          <span class="gate-text">Ship and demo to the client.</span>
+        </div>
+
+        <div class="stage">
+          <div class="stage-code">M.9</div>
+          <div class="stage-agent">reviewer</div>
+          <div class="stage-body">
+            <div class="stage-skills"><span class="skill">close-module</span></div>
+            <div class="stage-out">Writes <code>summary.md</code> (detail) and folds it into <code>inventory.md</code> (index, one line per item). The <b>Patterns</b> section is the valuable half — it is what prevents a second pagination style in module 5.</div>
+          </div>
+        </div>
+
+        <div class="loopback">↺ &nbsp;Next module in the queue starts at <b>M.0</b> by reading the inventory just written. That read is the entire payoff of M.9.</div>
+      </div>
+    </section>
+
+    <section id="agents">
+      <h2>Agents <span class="h2-note">role = context boundary · skill = procedure</span></h2>
+      <p class="lede">
+        One agent per role, many skills each. The agent boundary is what must be held in one head
+        at once — building page three requires remembering the components built in step one.
+        Splitting further just causes context thrash.
+      </p>
+      <div class="agents">
+        <div class="agent">
+          <div class="agent-top"><h3>product-owner</h3><span class="model">opus</span></div>
+          <p>Business truth. Requirements, module decomposition, BRDs. Names no technology — a constraint is recorded as a constraint, never as a solution.</p>
+          <div class="agent-skills"><span>requirements-intake</span><span>module-decomposition</span><span>write-brd</span><span>client-brief</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>system-architect</h3><span class="model">opus</span></div>
+          <p>Technical boundaries and contracts. Owns the boundary object both builders consume, and the only sanctioned way to change it.</p>
+          <div class="agent-skills"><span>service-design</span><span>groom-module</span><span>api-contract</span><span>amend-contract</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>ux-engineer</h3><span class="model">opus</span></div>
+          <p>Design system and per-module design intent. Always emits both a canvas and a spec — either alone leaves the builder guessing.</p>
+          <div class="agent-skills"><span>design-system</span><span>component-library</span><span>design-direction</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>frontend-builder</h3><span class="model">sonnet</span></div>
+          <p>UI against mocks. Never calls a live backend. Never forks a shared component. Tokens only.</p>
+          <div class="agent-skills"><span>read-design-spec</span><span>build-component</span><span>compose-page</span><span>wire-api-client</span><span>promote-shared</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>backend-builder</h3><span class="model">sonnet</span></div>
+          <p>Data and API. Also lays the foundation schema and project skeleton. Treats the contract as law and raises rather than diverges.</p>
+          <div class="agent-skills"><span>foundation-schema</span><span>project-skeleton</span><span>schema-design</span><span>migrations</span><span>api-endpoint</span><span>auth-authz</span><span>promote-shared</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>integrator</h3><span class="model">sonnet</span></div>
+          <p>Joins the two branches. Reconciliation first, wiring second — divergences are the real output of the stage.</p>
+          <div class="agent-skills"><span>swap-mocks</span><span>e2e-verify</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>reviewer</h3><span class="model">opus</span></div>
+          <p>Cross-module consistency and the ledger. In a serial pipeline nothing else forces module 7 to resemble module 1.</p>
+          <div class="agent-skills"><span>drift-check</span><span>close-module</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <h2>Skill index <span class="h2-note">26 skills · when each fires</span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Skill</th><th>Agent</th><th>Stage</th><th>Reads → Writes</th></tr>
+          </thead>
+          <tbody>
+            <tr class="phase-a"><td class="num">01</td><td class="sk">requirements-intake</td><td class="ag">product-owner</td><td class="st">F.0</td><td class="io">client input → <code>00-global/requirements.md</code></td></tr>
+            <tr class="phase-a"><td class="num">02</td><td class="sk">module-decomposition</td><td class="ag">product-owner</td><td class="st">F.1</td><td class="io">requirements → <code>00-global/module-map.md</code></td></tr>
+            <tr class="phase-a"><td class="num">03</td><td class="sk">service-design</td><td class="ag">system-architect</td><td class="st">F.2</td><td class="io">requirements + map → <code>00-global/architecture.md</code></td></tr>
+            <tr class="phase-a"><td class="num">04</td><td class="sk">design-system</td><td class="ag">ux-engineer</td><td class="st">F.3</td><td class="io">requirements → <code>00-global/design-system.md</code></td></tr>
+            <tr class="phase-a"><td class="num">05</td><td class="sk">component-library</td><td class="ag">ux-engineer + frontend-builder</td><td class="st">F.4</td><td class="io">design system → ~10–12 primitives</td></tr>
+            <tr class="phase-a"><td class="num">06</td><td class="sk">foundation-schema</td><td class="ag">backend-builder</td><td class="st">F.5</td><td class="io">architecture + map → <code>00-global/data-model.md</code></td></tr>
+            <tr class="phase-a"><td class="num">07</td><td class="sk">project-skeleton</td><td class="ag">backend-builder</td><td class="st">F.6</td><td class="io">architecture → repo, routing, migrations, CI</td></tr>
+            <tr><td class="num">08</td><td class="sk">write-brd</td><td class="ag">product-owner</td><td class="st">M.1</td><td class="io">requirements + inventory → <code>brd.md</code></td></tr>
+            <tr><td class="num">09</td><td class="sk">groom-module</td><td class="ag">system-architect</td><td class="st">M.2</td><td class="io">brd + inventory → <code>spec.md</code> + reuse plan</td></tr>
+            <tr><td class="num">10</td><td class="sk">schema-design</td><td class="ag">backend-builder</td><td class="st">M.3</td><td class="io">spec → module <code>data-model.md</code></td></tr>
+            <tr><td class="num">11</td><td class="sk">design-direction</td><td class="ag">ux-engineer</td><td class="st">M.4</td><td class="io">brd + design system → <code>design-spec.md</code> + canvas</td></tr>
+            <tr><td class="num">12</td><td class="sk">api-contract</td><td class="ag">system-architect</td><td class="st">M.5</td><td class="io">spec + data model + design spec → <code>api-contract.md</code></td></tr>
+            <tr><td class="num">13</td><td class="sk">read-design-spec</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">design spec + canvas + inventory → build plan</td></tr>
+            <tr><td class="num">14</td><td class="sk">build-component</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">design spec → components, full state matrix</td></tr>
+            <tr><td class="num">15</td><td class="sk">compose-page</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">design spec + components → pages, routing</td></tr>
+            <tr><td class="num">16</td><td class="sk">wire-api-client</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">contract → typed client + mocks</td></tr>
+            <tr><td class="num">17</td><td class="sk">migrations</td><td class="ag">backend-builder</td><td class="st">M.6b</td><td class="io">data model → reversible migrations</td></tr>
+            <tr><td class="num">18</td><td class="sk">api-endpoint</td><td class="ag">backend-builder</td><td class="st">M.6b</td><td class="io">contract → handlers</td></tr>
+            <tr><td class="num">19</td><td class="sk">auth-authz</td><td class="ag">backend-builder</td><td class="st">M.6b</td><td class="io">brd permissions → authorization rules + negative tests</td></tr>
+            <tr><td class="num">20</td><td class="sk">amend-contract</td><td class="ag">system-architect</td><td class="st">M.6 ↺</td><td class="io">blocker → changelog entry + re-freeze</td></tr>
+            <tr><td class="num">21</td><td class="sk">swap-mocks</td><td class="ag">integrator</td><td class="st">M.7</td><td class="io">both branches → reconciliation, then real wiring</td></tr>
+            <tr><td class="num">22</td><td class="sk">e2e-verify</td><td class="ag">integrator</td><td class="st">M.7</td><td class="io">acceptance criteria → passing e2e suite</td></tr>
+            <tr><td class="num">23</td><td class="sk">drift-check</td><td class="ag">reviewer</td><td class="st">M.8</td><td class="io">module vs inventory → promote / refactor / accept</td></tr>
+            <tr><td class="num">24</td><td class="sk">promote-shared</td><td class="ag">frontend / backend-builder</td><td class="st">M.8</td><td class="io">rule-of-two hit → shared layer + both consumers refactored</td></tr>
+            <tr><td class="num">25</td><td class="sk">close-module</td><td class="ag">reviewer</td><td class="st">M.9</td><td class="io">module output → <code>summary.md</code> + <code>inventory.md</code></td></tr>
+            <tr><td class="num">26</td><td class="sk">client-brief</td><td class="ag">product-owner</td><td class="st">F.1 / M.9</td><td class="io">map or summary → client-facing scope brief or release note</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="install">
+      <h2>Install <span class="h2-note">local marketplace — edits picked up without reinstalling</span></h2>
+      <div class="install">claude
+/plugin marketplace add ~/Documents/Projects/agent-fleet
+/plugin install agent-fleet@agent-fleet</div>
+
+      <div class="cmds">
+        <div class="cmd"><code>/foundation</code><span>Run Phase A, stopping at all three gates.</span></div>
+        <div class="cmd"><code>/module &lt;name&gt;</code><span>Run Phase B for one module. Blank takes the next in the queue.</span></div>
+        <div class="cmd"><code>/close</code><span>Write the summary, update the inventory. Never skip before the next module.</span></div>
+      </div>
+
+      <p class="lede" style="margin-top: var(--s-6)">
+        Before first use, fill in <code>CONVENTIONS.md</code>: stack, repo layout, naming, API and
+        frontend conventions, testing, git. Agents read it before writing code, and any field left
+        as <code>TBD</code> becomes a question they must ask rather than a guess they will get wrong.
+      </p>
+    </section>
+
+    <footer>
+      <span>agent-fleet v0.1.0 · 7 agents · 26 skills · 12 templates · 3 commands</span>
+      <span>~/Documents/Projects/agent-fleet</span>
+    </footer>
+  </main>
+</div>
