@@ -18,11 +18,28 @@ This file is the single source of truth for the pipeline. Edit it here.
 
 ```bash
 claude
-/plugin marketplace add ~/Documents/Projects/agent-fleet
+/plugin marketplace add ahsuniqbal/agent-fleet
 /plugin install agent-fleet@agent-fleet
 ```
 
-Iterate in place — edits to this repo are picked up without reinstalling.
+Installing copies the plugin into `~/.claude/plugins/cache/` at the version in `plugin.json`; it
+does not run from a checkout of this repo. To pick up a new release:
+
+```bash
+claude plugin marketplace update agent-fleet
+claude plugin update agent-fleet@agent-fleet
+```
+
+Then restart Claude Code — the update does not apply to a running session.
+
+## Releasing a change
+
+The cache directory is keyed by version, so a change published under the same version number will
+not reliably reach anyone who already installed it. Every release:
+
+1. Bump `version` in [.claude-plugin/plugin.json](.claude-plugin/plugin.json).
+2. Commit and push.
+3. `claude plugin tag .` — tags `agent-fleet--v<version>` and checks the manifests agree.
 
 ## The document spine
 

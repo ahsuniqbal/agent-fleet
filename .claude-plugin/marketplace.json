@@ -1,5 +1,6 @@
 {
   "name": "agent-fleet",
+  "description": "A serial, module-by-module software delivery pipeline for Claude Code: role agents, stage skills, and a document spine that carries a client brief from requirements to shipped modules.",
   "owner": {
     "name": "Ahsun Iqbal"
   },
