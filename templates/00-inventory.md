@@ -5,7 +5,7 @@
 An index, not an archive. One line per item, pointing at the module summary for detail.
 Keep under ~300 lines; past that, split into `00-global/inventory/` by category.
 
-Updated by `close-module` at M.9 of every module.
+Updated by `close-module` at M.10 of every module.
 
 ---
 

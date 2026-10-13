@@ -1,6 +1,6 @@
 ---
 name: amend-contract
-description: Change a frozen API contract safely when a builder hits a genuine blocker — assess impact, log the amendment, and notify both sides. Use during stage M.6 whenever the frontend or backend cannot proceed within the contract as written. The only sanctioned way to change a frozen contract.
+description: Change a frozen API contract safely when a developer hits a genuine blocker — assess impact, log the amendment, and notify both sides. Use during stage M.6 whenever the frontend or backend cannot proceed within the contract as written. The only sanctioned way to change a frozen contract.
 ---
 
 # Amend contract
@@ -12,8 +12,8 @@ description: Change a frozen API contract safely when a builder hits a genuine b
 
 ## Why this exists
 
-A frozen contract lets two builders work in parallel. The freeze is only credible if there is a
-sanctioned way to change it. Without one, builders work around the contract locally, both sides
+A frozen contract lets two developers work in parallel. The freeze is only credible if there is a
+sanctioned way to change it. Without one, developers work around the contract locally, both sides
 drift, and integration becomes archaeology.
 
 **Any contract change goes through here. There are no small exceptions.**
@@ -42,7 +42,7 @@ drift, and integration becomes archaeology.
    ## Changelog
 
    ### 2026-09-07 — added `invoice.taxBreakdown`
-   **Requested by:** frontend-builder
+   **Requested by:** frontend-developer
    **Reason:** design spec binds per-line tax; the contract only exposed a total
    **Type:** additive
    **Affects:** GET /invoices/{id}, GET /invoices — mocks and the invoice detail screen
@@ -50,7 +50,8 @@ drift, and integration becomes archaeology.
    ```
 
 6. **Update the contract body** and its examples. Stale examples produce stale mocks.
-7. **Notify both builders explicitly**, naming what changed and what each must do.
+7. **Notify both developers explicitly**, naming what changed and what each must do. Notify
+   `qa-analyst` too — API test cases written against the old contract must be updated.
 8. **Re-freeze** with a new date.
 
 ## Checklist
@@ -62,7 +63,8 @@ drift, and integration becomes archaeology.
 - [ ] Contract body updated
 - [ ] **Examples updated** — mocks are generated from them
 - [ ] Changelog entry complete
-- [ ] Both builders notified, with their specific action
+- [ ] Both developers notified, with their specific action
+- [ ] `qa-analyst` notified so affected test cases are updated
 - [ ] Re-frozen with a new date
 
 ## Failure modes
@@ -75,5 +77,5 @@ drift, and integration becomes archaeology.
 
 ## Handoff
 
-Both builders resume against the amended contract. `integrator` reads the changelog at M.7 —
+Both developers resume against the amended contract. `api-integrator` reads the changelog at M.7 —
 amendments are the first place to look for divergence.

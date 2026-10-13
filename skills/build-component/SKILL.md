@@ -5,7 +5,7 @@ description: Build the components a module needs, with full variant, state, and 
 
 # Build component
 
-**Stage:** M.6a · **Agent:** frontend-builder
+**Stage:** M.6a · **Agent:** frontend-developer
 **Reads:** the build plan, `docs/modules/NN/design-spec.md`, the canvas,
 `docs/00-global/design-system.md`, `docs/00-global/inventory.md`, `CONVENTIONS.md`
 **Writes:** module components; extensions to shared components where general

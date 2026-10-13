@@ -5,7 +5,7 @@ description: Assemble a module's screens from built components — routing, layo
 
 # Compose page
 
-**Stage:** M.6a · **Agent:** frontend-builder
+**Stage:** M.6a · **Agent:** frontend-developer
 **Reads:** `docs/modules/NN/design-spec.md`, the canvas, `docs/modules/NN/api-contract.md`,
 `docs/00-global/inventory.md`, `CONVENTIONS.md`
 **Writes:** module pages, routes, and page-level state
@@ -59,5 +59,5 @@ description: Assemble a module's screens from built components — routing, layo
 
 ## Handoff
 
-`wire-api-client` connects these to mocks generated from the contract. `integrator` swaps them
+`wire-api-client` connects these to mocks generated from the contract. `api-integrator` swaps them
 for real calls at M.7.

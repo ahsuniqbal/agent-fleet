@@ -3,7 +3,7 @@
 **Shipped:** <date>
 
 The **detail** half of the reuse ledger. `00-global/inventory.md` is the index and points here.
-Written by `close-module` at M.9.
+Written by `close-module` at M.10.
 
 ## What was built
 
@@ -69,9 +69,18 @@ From `promote-shared` at M.8.
 
 Read as a lesson: repeated amendment causes are a signal to change how M.5 is done.
 
+## QA outcome
+
+From `test-report.md` at M.9.
+
+| Runs to pass | Cases | Bugs found (FE / BE / BRD) | Deferred at gate | Added to regression |
+|---|---|---|---|---|
+
+Repeated bug causes are a signal for how M.6 is done in the next module.
+
 ## Accepted drift
 
-`accept` verdicts from `drift-check`, with justifications, so the next reviewer does not
+`accept` verdicts from `drift-check`, with justifications, so the next code-reviewer does not
 re-raise them.
 
 | Finding | Justification |

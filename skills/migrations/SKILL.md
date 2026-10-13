@@ -5,7 +5,7 @@ description: Write reversible, safe database migrations from a module's data mod
 
 # Migrations
 
-**Stage:** M.6b · **Agent:** backend-builder
+**Stage:** M.6b · **Agent:** backend-developer
 **Reads:** `docs/modules/NN/data-model.md`, `docs/00-global/data-model.md`, `CONVENTIONS.md`
 **Writes:** migration files
 
@@ -63,5 +63,5 @@ one as though a rollback at 2am is a live possibility, because occasionally it i
 
 ## Handoff
 
-`api-endpoint` implements handlers against this schema. `integrator` runs migrations as part of
+`api-endpoint` implements handlers against this schema. `api-integrator` runs migrations as part of
 end-to-end verification at M.7.

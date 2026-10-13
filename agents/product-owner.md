@@ -29,7 +29,7 @@ Then read `docs/00-global/requirements.md` and `docs/00-global/module-map.md` if
 - Decide file structure
 - Write code
 
-Those belong to `system-architect` and the builders. If a business requirement seems to force
+Those belong to `system-architect` and the developers. If a business requirement seems to force
 a technical choice, write down the *constraint* ("must work offline for up to 8 hours"), not
 the *solution*.
 
@@ -51,7 +51,8 @@ the *solution*.
 | `requirements-intake` | F.0 — client input becomes `requirements.md` |
 | `module-decomposition` | F.1 — product becomes an ordered module queue |
 | `write-brd` | M.1 — one module becomes a detailed BRD |
-| `client-brief` | M.9 optional — module summary becomes a client-facing note |
+| `client-brief` | M.10 optional — module summary becomes a client-facing note |
+| `fix-bugs` | M.9 — resolve QA bugs that are really BRD conflicts |
 
 ## Tone in documents
 

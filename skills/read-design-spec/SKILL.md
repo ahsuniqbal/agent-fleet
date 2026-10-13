@@ -5,7 +5,7 @@ description: Turn a module's design spec and canvas into an ordered frontend bui
 
 # Read design spec
 
-**Stage:** M.6a start · **Agent:** frontend-builder
+**Stage:** M.6a start · **Agent:** frontend-developer
 **Reads:** `docs/modules/NN/design-spec.md`, the canvas, `docs/00-global/inventory.md`,
 `docs/00-global/design-system.md`, `docs/modules/NN/spec.md` reuse plan
 **Writes:** a build plan (working notes; no permanent document required)
@@ -16,7 +16,7 @@ description: Turn a module's design spec and canvas into an ordered frontend bui
    states exist. Which tokens apply. How data binds.
 2. **Canvas second** — values. Exact composition, spacing, hierarchy.
 
-Reversing this order produces a builder that reimplements a shared component because the canvas
+Reversing this order produces a developer that reimplements a shared component because the canvas
 showed pixels and the spec was never opened.
 
 ## Procedure

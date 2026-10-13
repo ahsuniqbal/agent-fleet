@@ -8,7 +8,7 @@
     {
       "name": "agent-fleet",
       "source": "./",
-      "description": "Serial module-by-module delivery pipeline: product-owner, system-architect, ux-engineer, frontend-builder, backend-builder, integrator, reviewer."
+      "description": "Serial module-by-module delivery pipeline: product-owner, system-architect, ux-engineer, frontend-developer, backend-developer, api-integrator, code-reviewer, qa-analyst, qa-tester."
     }
   ]
 }

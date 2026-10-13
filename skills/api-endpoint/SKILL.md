@@ -5,7 +5,7 @@ description: Implement a module's HTTP handlers exactly as the frozen API contra
 
 # API endpoint
 
-**Stage:** M.6b · **Agent:** backend-builder
+**Stage:** M.6b · **Agent:** backend-developer
 **Reads:** `docs/modules/NN/api-contract.md`, `docs/modules/NN/data-model.md`,
 `docs/00-global/inventory.md`, `CONVENTIONS.md`
 **Writes:** route handlers, request validation, service layer, response serialisation
@@ -71,5 +71,5 @@ round trip costs minutes. A silent divergence costs an afternoon of integration 
 
 ## Handoff
 
-`auth-authz` verifies the authorization layer. `integrator` reconciles this against the frontend
+`auth-authz` verifies the authorization layer. `api-integrator` reconciles this against the frontend
 and the contract at M.7.

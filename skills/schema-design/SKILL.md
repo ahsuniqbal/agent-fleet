@@ -5,7 +5,7 @@ description: Design the tables this module owns, referencing shared global entit
 
 # Schema design
 
-**Stage:** M.3 · **Agent:** backend-builder
+**Stage:** M.3 · **Agent:** backend-developer
 **Reads:** `docs/00-global/inventory.md`, `docs/00-global/data-model.md`,
 `docs/modules/NN/spec.md`, `docs/modules/NN/brd.md`, `CONVENTIONS.md`
 **Writes:** `docs/modules/NN/data-model.md` (template: `templates/module-data-model.md`)

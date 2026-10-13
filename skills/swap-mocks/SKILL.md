@@ -5,7 +5,7 @@ description: Reconcile the frontend, the backend, and the frozen contract, then 
 
 # Swap mocks
 
-**Stage:** M.7 · **Agent:** integrator
+**Stage:** M.7 · **Agent:** api-integrator
 **Reads:** `docs/modules/NN/api-contract.md` including its changelog, the frontend client and
 mocks, the backend handlers, `CONVENTIONS.md`
 **Writes:** real API wiring; divergence findings

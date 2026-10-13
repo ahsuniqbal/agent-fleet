@@ -1,6 +1,6 @@
 ---
 name: design-direction
-description: Produce a module's design — a visual canvas for human and client review, plus a machine-readable design spec that the frontend builder implements from. Use at stage M.4, after the module spec is approved. Always emits both artifacts.
+description: Produce a module's design — a visual canvas for human and client review, plus a machine-readable design spec that the frontend developer implements from. Use at stage M.4, after the module spec is approved. Always emits both artifacts.
 ---
 
 # Design direction
@@ -18,10 +18,10 @@ Load `frontend-design` alongside this skill. Load `dataviz` before designing any
 | Artifact | For | Carries |
 |---|---|---|
 | Canvas | you and the client | composition, spacing, hierarchy — visual truth |
-| `design-spec.md` | the frontend builder | token names, component inventory, states, breakpoints, data binding, interaction rules |
+| `design-spec.md` | the frontend developer | token names, component inventory, states, breakpoints, data binding, interaction rules |
 
-Canvas alone makes the builder guess token names and miss every non-default state. Spec alone
-cannot convey layout economically. The builder reads the spec first for intent, then the canvas
+Canvas alone makes the developer guess token names and miss every non-default state. Spec alone
+cannot convey layout economically. The developer reads the spec first for intent, then the canvas
 for values.
 
 ## Check the inventory before designing anything
@@ -46,7 +46,7 @@ The spec's reuse plan already committed to specific components. Design with thos
 5. **Responsive behaviour** at each named breakpoint — what reflows, what collapses, what hides,
    what becomes scrollable.
 6. **Data binding** — which field of which API response populates which element. This is what
-   stops the builder from guessing.
+   stops the developer from guessing.
 7. **Interaction rules** — what happens on submit, on validation failure, on destructive action,
    on navigation with unsaved changes. Confirmation patterns. Optimistic update decisions.
 8. **Copy** — real microcopy for labels, empty states, errors, and confirmations. Placeholder

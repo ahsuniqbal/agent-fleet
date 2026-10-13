@@ -7,7 +7,7 @@ Close module: $ARGUMENTS
 
 Blank means the most recently shipped module in `docs/00-global/module-map.md`.
 
-Use the `reviewer` agent with the `close-module` skill.
+Use the `code-reviewer` agent with the `close-module` skill.
 
 ## What this produces
 

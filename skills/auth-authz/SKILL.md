@@ -5,7 +5,7 @@ description: Implement and verify authorization for every endpoint in a module �
 
 # Auth / authz
 
-**Stage:** M.6b · **Agent:** backend-builder
+**Stage:** M.6b · **Agent:** backend-developer
 **Reads:** `docs/modules/NN/brd.md` permissions, `docs/modules/NN/spec.md`,
 `docs/modules/NN/api-contract.md`, `docs/00-global/architecture.md`, `docs/00-global/inventory.md`
 **Writes:** authorization rules, policy checks, and their tests
@@ -73,5 +73,5 @@ down. An endpoint whose authorization is implicit is an endpoint nobody has thou
 
 ## Handoff
 
-`integrator` verifies permission-related acceptance criteria end to end at M.7. Record the
-authorization pattern in the inventory at M.9 so later modules inherit it.
+`api-integrator` verifies permission-related acceptance criteria end to end at M.7. Record the
+authorization pattern in the inventory at M.10 so later modules inherit it.

@@ -454,14 +454,14 @@
       <div class="eyebrow">Delivery pipeline · agent-fleet v0.1.0</div>
       <h1>Agent Fleet Pipeline</h1>
       <p class="standfirst">
-        Seven role agents and twenty-six skills carrying a client brief from the first call to
+        Nine role agents and thirty skills carrying a client brief from the first call to
         shipped modules. Modules ship one at a time in dependency order — throughput is not the
         goal, consistency is. Module 7 must look like module 1.
       </p>
       <div class="meta">
-        <span><b>7</b> agents</span>
-        <span><b>26</b> skills</span>
-        <span><b>16</b> stages</span>
+        <span><b>9</b> agents</span>
+        <span><b>30</b> skills</span>
+        <span><b>17</b> stages</span>
         <span><b>8</b> human gates</span>
         <span><b>1</b> parallel branch</span>
       </div>
@@ -510,6 +510,8 @@
     design-system.md    <span class="c">tokens</span>
     data-model.md       <span class="c">shared entities only</span>
     <i>inventory.md</i>       <i>THE REUSE LEDGER — read at M.0, every module</i>
+    test-env.md         <span class="c">how QA starts the app, roles + test users</span>
+    regression-suite.md <span class="c">earlier modules' P0 cases, run every module</span>
     CHANGELOG.md        <span class="c">what got promoted to shared, and when</span>
   <b>modules/</b>
     <b>01-&lt;name&gt;/</b>
@@ -518,6 +520,10 @@
       design-spec.md    <span class="c">tokens, states, breakpoints, data binding</span>
       data-model.md     <span class="c">module-owned tables only</span>
       api-contract.md   <span class="c">frozen before build starts</span>
+      test-cases.md     <span class="c">FE + API cases, traced to the BRD</span>
+      test-report.md    <span class="c">QA run log, append-only</span>
+      bugs.md           <span class="c">open → fixed → verified / reopened</span>
+      qa-evidence/      <span class="c">screenshots + request/response, per run</span>
       summary.md        <span class="c">written at close, feeds the inventory</span></div>
     </section>
 
@@ -536,9 +542,9 @@ flowchart TD
         GA2{{"GATE · YOU<br/>approve build order"}}
         F2["F.2 service-design<br/>system-architect"]
         F3["F.3 design-system<br/>ux-engineer"]
-        F4["F.4 component-library<br/>ux-engineer + frontend-builder"]
-        F5["F.5 foundation-schema<br/>backend-builder"]
-        F6["F.6 project-skeleton<br/>backend-builder"]
+        F4["F.4 component-library<br/>ux-engineer + frontend-developer"]
+        F5["F.5 foundation-schema<br/>backend-developer"]
+        F6["F.6 project-skeleton<br/>backend-developer"]
         GA3{{"GATE · YOU<br/>foundation frozen"}}
 
         F0 --> GA1 --> F1 --> GA2 --> F2
@@ -555,18 +561,21 @@ flowchart TD
         GB1{{"GATE · CLIENT<br/>module scope"}}
         M2["M.2 groom-module<br/>system-architect"]
         GB2{{"GATE · YOU<br/>approve spec + reuse plan"}}
-        M3["M.3 schema-design<br/>backend-builder"]
+        M3["M.3 schema-design<br/>backend-developer"]
         M4["M.4 design-direction<br/>ux-engineer"]
         GB3{{"GATE · YOU + CLIENT<br/>review canvas"}}
         M5["M.5 api-contract<br/>system-architect"]
         GB4{{"GATE · YOU<br/>CONTRACT FROZEN"}}
-        M6A["M.6a frontend-builder<br/>builds against mocks"]
-        M6B["M.6b backend-builder<br/>migrations, endpoints, authz"]
+        M6A["M.6a frontend-developer<br/>builds against mocks"]
+        M6B["M.6b backend-developer<br/>migrations, endpoints, authz"]
+        M6C["M.6c write-test-cases<br/>qa-analyst"]
         AM["amend-contract<br/>logged, both sides notified"]
-        M7["M.7 swap-mocks + e2e-verify<br/>integrator"]
-        M8["M.8 drift-check + code-review<br/>reviewer"]
-        GB5{{"GATE · YOU<br/>ship + demo"}}
-        M9["M.9 close-module<br/>reviewer"]
+        M7["M.7 swap-mocks + e2e-verify<br/>api-integrator"]
+        M8["M.8 drift-check + code-review<br/>code-reviewer"]
+        M9["M.9 execute-tests + regression-suite<br/>qa-tester"]
+        FIX["fix-bugs<br/>owners · bugs.md → fixed"]
+        GB5{{"GATE · YOU<br/>QA pass · ship + demo"}}
+        M10["M.10 close-module<br/>code-reviewer"]
 
         M0 --> M1 --> GB1 --> M2 --> GB2
         GB2 --> M3
@@ -576,15 +585,20 @@ flowchart TD
         M5 --> GB4
         GB4 --> M6A
         GB4 --> M6B
+        GB4 --> M6C
         M6A -.blocked.-> AM
         M6B -.blocked.-> AM
         AM -.re-freeze.-> GB4
         M6A --> M7
         M6B --> M7
-        M7 --> M8 --> GB5 --> M9
+        M7 --> M8 --> M9
+        M6C --> M9
+        M9 -.fail · max 3 runs.-> FIX
+        FIX -.retest.-> M9
+        M9 --> GB5 --> M10
     end
 
-    M9 --> Q{More modules<br/>in queue?}
+    M10 --> Q{More modules<br/>in queue?}
     Q -->|yes| M0
     Q -->|no| Done([Project complete])
 </pre>
@@ -649,7 +663,7 @@ flowchart TD
           </div>
           <div class="stage">
             <div class="stage-code">F.4</div>
-            <div class="stage-agent">ux-engineer + frontend-builder</div>
+            <div class="stage-agent">ux-engineer + frontend-developer</div>
             <div class="stage-body">
               <div class="stage-skills"><span class="skill">component-library</span></div>
               <div class="stage-out">Roughly 10–12 primitives, each with full variant, state, and accessibility coverage. <b>No domain components</b> — rule of two governs those.</div>
@@ -657,7 +671,7 @@ flowchart TD
           </div>
           <div class="stage">
             <div class="stage-code">F.5</div>
-            <div class="stage-agent">backend-builder</div>
+            <div class="stage-agent">backend-developer</div>
             <div class="stage-body">
               <div class="stage-skills"><span class="skill">foundation-schema</span></div>
               <div class="stage-out">Entities referenced by two or more queued modules. Identity, timestamps, soft delete, tenancy, and audit decided once for the whole product.</div>
@@ -665,7 +679,7 @@ flowchart TD
           </div>
           <div class="stage">
             <div class="stage-code">F.6</div>
-            <div class="stage-agent">backend-builder</div>
+            <div class="stage-agent">backend-developer</div>
             <div class="stage-body">
               <div class="stage-skills"><span class="skill">project-skeleton</span></div>
               <div class="stage-out">Repo layout, routing shell, DB connection, migration runner, validated env config, error middleware, test harness, green CI.</div>
@@ -685,7 +699,7 @@ flowchart TD
       <p class="lede">
         Serial delivery means each module ships demo-able, later modules learn from earlier ones,
         and a contract amendment is cheap because only one module is ever in flight. The cost is
-        throughput — which is why the reviewer at M.8 matters more here than it would anywhere else.
+        throughput — which is why the code-reviewer at M.8 matters more here than it would anywhere else.
       </p>
 
       <div class="stages">
@@ -727,7 +741,7 @@ flowchart TD
 
         <div class="stage">
           <div class="stage-code">M.3</div>
-          <div class="stage-agent">backend-builder</div>
+          <div class="stage-agent">backend-developer</div>
           <div class="stage-body">
             <div class="stage-skills"><span class="skill">schema-design</span></div>
             <div class="stage-out">Module-owned tables. Shared entities referenced, never shadowed. Runs <b>before</b> the contract so schemas are grounded in real tables.</div>
@@ -739,7 +753,7 @@ flowchart TD
           <div class="stage-agent">ux-engineer</div>
           <div class="stage-body">
             <div class="stage-skills"><span class="skill">design-direction</span></div>
-            <div class="stage-out">Two artifacts, both required: a <b>canvas</b> for you and the client, and <code>design-spec.md</code> for the builder — token names, component verdicts, every state, breakpoints, data binding, real copy.</div>
+            <div class="stage-out">Two artifacts, both required: a <b>canvas</b> for you and the client, and <code>design-spec.md</code> for the developer — token names, component verdicts, every state, breakpoints, data binding, real copy.</div>
           </div>
         </div>
 
@@ -766,7 +780,7 @@ flowchart TD
         <div class="parallel">
           <div class="stage">
             <div class="stage-code">M.6a</div>
-            <div class="stage-agent">frontend-builder</div>
+            <div class="stage-agent">frontend-developer</div>
             <div class="stage-body">
               <div class="stage-skills">
                 <span class="skill">read-design-spec</span>
@@ -779,7 +793,7 @@ flowchart TD
           </div>
           <div class="stage">
             <div class="stage-code">M.6b</div>
-            <div class="stage-agent">backend-builder</div>
+            <div class="stage-agent">backend-developer</div>
             <div class="stage-body">
               <div class="stage-skills">
                 <span class="skill">migrations</span>
@@ -790,18 +804,26 @@ flowchart TD
             </div>
           </div>
           <div class="stage">
+            <div class="stage-code">M.6c</div>
+            <div class="stage-agent">qa-analyst</div>
+            <div class="stage-body">
+              <div class="stage-skills"><span class="skill">write-test-cases</span></div>
+              <div class="stage-out">FE and API test cases from the BRD, design spec, and contract — never from the build. A traceability matrix proves every acceptance criterion, validation rule, edge case, and permission cell is covered.</div>
+            </div>
+          </div>
+          <div class="stage">
             <div class="stage-code">↺</div>
             <div class="stage-agent">system-architect</div>
             <div class="stage-body">
               <div class="stage-skills"><span class="skill">amend-contract</span></div>
-              <div class="stage-out">The escape hatch. A blocked builder never works around the contract locally — the change is logged, examples updated, both sides notified, contract re-frozen.</div>
+              <div class="stage-out">The escape hatch. A blocked developer never works around the contract locally — the change is logged, examples updated, both sides notified, contract re-frozen.</div>
             </div>
           </div>
         </div>
 
         <div class="stage">
           <div class="stage-code">M.7</div>
-          <div class="stage-agent">integrator</div>
+          <div class="stage-agent">api-integrator</div>
           <div class="stage-body">
             <div class="stage-skills">
               <span class="skill">swap-mocks</span>
@@ -813,7 +835,7 @@ flowchart TD
 
         <div class="stage">
           <div class="stage-code">M.8</div>
-          <div class="stage-agent">reviewer</div>
+          <div class="stage-agent">code-reviewer</div>
           <div class="stage-body">
             <div class="stage-skills">
               <span class="skill">drift-check</span>
@@ -823,21 +845,34 @@ flowchart TD
           </div>
         </div>
 
+        <div class="stage">
+          <div class="stage-code">M.9 ↺</div>
+          <div class="stage-agent">qa-tester ⇄ owners</div>
+          <div class="stage-body">
+            <div class="stage-skills">
+              <span class="skill">execute-tests</span>
+              <span class="skill">regression-suite</span>
+              <span class="skill">fix-bugs</span>
+            </div>
+            <div class="stage-out">Black-box QA on the running app — Playwright for the UI, raw HTTP for the API. Never reads or edits code; the M.7 e2e suite stays a separate net. Every fail carries evidence and is filed in <code>bugs.md</code>; owners fix with a reproducing test, <code>qa-tester</code> verifies or reopens. Runs append to <code>test-report.md</code>, three at most before escalating. Earlier modules' regression cases run every time.</div>
+          </div>
+        </div>
+
         <div class="gate">
           <span class="gate-label">Gate · You</span>
-          <span class="gate-text">Ship and demo to the client.</span>
+          <span class="gate-text">QA verdict pass — no open P0/P1, regression green. Ship and demo to the client.</span>
         </div>
 
         <div class="stage">
-          <div class="stage-code">M.9</div>
-          <div class="stage-agent">reviewer</div>
+          <div class="stage-code">M.10</div>
+          <div class="stage-agent">code-reviewer</div>
           <div class="stage-body">
             <div class="stage-skills"><span class="skill">close-module</span></div>
             <div class="stage-out">Writes <code>summary.md</code> (detail) and folds it into <code>inventory.md</code> (index, one line per item). The <b>Patterns</b> section is the valuable half — it is what prevents a second pagination style in module 5.</div>
           </div>
         </div>
 
-        <div class="loopback">↺ &nbsp;Next module in the queue starts at <b>M.0</b> by reading the inventory just written. That read is the entire payoff of M.9.</div>
+        <div class="loopback">↺ &nbsp;Next module in the queue starts at <b>M.0</b> by reading the inventory just written. That read is the entire payoff of M.10.</div>
       </div>
     </section>
 
@@ -852,43 +887,53 @@ flowchart TD
         <div class="agent">
           <div class="agent-top"><h3>product-owner</h3><span class="model">opus</span></div>
           <p>Business truth. Requirements, module decomposition, BRDs. Names no technology — a constraint is recorded as a constraint, never as a solution.</p>
-          <div class="agent-skills"><span>requirements-intake</span><span>module-decomposition</span><span>write-brd</span><span>client-brief</span></div>
+          <div class="agent-skills"><span>requirements-intake</span><span>module-decomposition</span><span>write-brd</span><span>client-brief</span><span>fix-bugs</span></div>
         </div>
         <div class="agent">
           <div class="agent-top"><h3>system-architect</h3><span class="model">opus</span></div>
-          <p>Technical boundaries and contracts. Owns the boundary object both builders consume, and the only sanctioned way to change it.</p>
+          <p>Technical boundaries and contracts. Owns the boundary object both developers consume, and the only sanctioned way to change it.</p>
           <div class="agent-skills"><span>service-design</span><span>groom-module</span><span>api-contract</span><span>amend-contract</span></div>
         </div>
         <div class="agent">
           <div class="agent-top"><h3>ux-engineer</h3><span class="model">opus</span></div>
-          <p>Design system and per-module design intent. Always emits both a canvas and a spec — either alone leaves the builder guessing.</p>
+          <p>Design system and per-module design intent. Always emits both a canvas and a spec — either alone leaves the developer guessing.</p>
           <div class="agent-skills"><span>design-system</span><span>component-library</span><span>design-direction</span></div>
         </div>
         <div class="agent">
-          <div class="agent-top"><h3>frontend-builder</h3><span class="model">sonnet</span></div>
+          <div class="agent-top"><h3>frontend-developer</h3><span class="model">sonnet</span></div>
           <p>UI against mocks. Never calls a live backend. Never forks a shared component. Tokens only.</p>
-          <div class="agent-skills"><span>read-design-spec</span><span>build-component</span><span>compose-page</span><span>wire-api-client</span><span>promote-shared</span></div>
+          <div class="agent-skills"><span>read-design-spec</span><span>build-component</span><span>compose-page</span><span>wire-api-client</span><span>promote-shared</span><span>fix-bugs</span></div>
         </div>
         <div class="agent">
-          <div class="agent-top"><h3>backend-builder</h3><span class="model">sonnet</span></div>
+          <div class="agent-top"><h3>backend-developer</h3><span class="model">sonnet</span></div>
           <p>Data and API. Also lays the foundation schema and project skeleton. Treats the contract as law and raises rather than diverges.</p>
-          <div class="agent-skills"><span>foundation-schema</span><span>project-skeleton</span><span>schema-design</span><span>migrations</span><span>api-endpoint</span><span>auth-authz</span><span>promote-shared</span></div>
+          <div class="agent-skills"><span>foundation-schema</span><span>project-skeleton</span><span>schema-design</span><span>migrations</span><span>api-endpoint</span><span>auth-authz</span><span>promote-shared</span><span>fix-bugs</span></div>
         </div>
         <div class="agent">
-          <div class="agent-top"><h3>integrator</h3><span class="model">sonnet</span></div>
+          <div class="agent-top"><h3>api-integrator</h3><span class="model">sonnet</span></div>
           <p>Joins the two branches. Reconciliation first, wiring second — divergences are the real output of the stage.</p>
           <div class="agent-skills"><span>swap-mocks</span><span>e2e-verify</span></div>
         </div>
         <div class="agent">
-          <div class="agent-top"><h3>reviewer</h3><span class="model">opus</span></div>
+          <div class="agent-top"><h3>code-reviewer</h3><span class="model">opus</span></div>
           <p>Cross-module consistency and the ledger. In a serial pipeline nothing else forces module 7 to resemble module 1.</p>
           <div class="agent-skills"><span>drift-check</span><span>close-module</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>qa-analyst</h3><span class="model">opus</span></div>
+          <p>Test cases from the requirement, not the build. Every case traces to a BRD row or a contract error; every gap is raised, never guessed.</p>
+          <div class="agent-skills"><span>write-test-cases</span></div>
+        </div>
+        <div class="agent">
+          <div class="agent-top"><h3>qa-tester</h3><span class="model">sonnet</span></div>
+          <p>Black-box QA in the browser and over HTTP. Evidence on every fail, bugs to their owners, and a regression run so module 5 cannot break module 2.</p>
+          <div class="agent-skills"><span>execute-tests</span><span>regression-suite</span></div>
         </div>
       </div>
     </section>
 
     <section id="skills">
-      <h2>Skill index <span class="h2-note">26 skills · when each fires</span></h2>
+      <h2>Skill index <span class="h2-note">30 skills · when each fires</span></h2>
       <div class="table-wrap">
         <table>
           <thead>
@@ -899,28 +944,32 @@ flowchart TD
             <tr class="phase-a"><td class="num">02</td><td class="sk">module-decomposition</td><td class="ag">product-owner</td><td class="st">F.1</td><td class="io">requirements → <code>00-global/module-map.md</code></td></tr>
             <tr class="phase-a"><td class="num">03</td><td class="sk">service-design</td><td class="ag">system-architect</td><td class="st">F.2</td><td class="io">requirements + map → <code>00-global/architecture.md</code></td></tr>
             <tr class="phase-a"><td class="num">04</td><td class="sk">design-system</td><td class="ag">ux-engineer</td><td class="st">F.3</td><td class="io">requirements → <code>00-global/design-system.md</code></td></tr>
-            <tr class="phase-a"><td class="num">05</td><td class="sk">component-library</td><td class="ag">ux-engineer + frontend-builder</td><td class="st">F.4</td><td class="io">design system → ~10–12 primitives</td></tr>
-            <tr class="phase-a"><td class="num">06</td><td class="sk">foundation-schema</td><td class="ag">backend-builder</td><td class="st">F.5</td><td class="io">architecture + map → <code>00-global/data-model.md</code></td></tr>
-            <tr class="phase-a"><td class="num">07</td><td class="sk">project-skeleton</td><td class="ag">backend-builder</td><td class="st">F.6</td><td class="io">architecture → repo, routing, migrations, CI</td></tr>
+            <tr class="phase-a"><td class="num">05</td><td class="sk">component-library</td><td class="ag">ux-engineer + frontend-developer</td><td class="st">F.4</td><td class="io">design system → ~10–12 primitives</td></tr>
+            <tr class="phase-a"><td class="num">06</td><td class="sk">foundation-schema</td><td class="ag">backend-developer</td><td class="st">F.5</td><td class="io">architecture + map → <code>00-global/data-model.md</code></td></tr>
+            <tr class="phase-a"><td class="num">07</td><td class="sk">project-skeleton</td><td class="ag">backend-developer</td><td class="st">F.6</td><td class="io">architecture → repo, routing, migrations, CI, <code>test-env.md</code></td></tr>
             <tr><td class="num">08</td><td class="sk">write-brd</td><td class="ag">product-owner</td><td class="st">M.1</td><td class="io">requirements + inventory → <code>brd.md</code></td></tr>
             <tr><td class="num">09</td><td class="sk">groom-module</td><td class="ag">system-architect</td><td class="st">M.2</td><td class="io">brd + inventory → <code>spec.md</code> + reuse plan</td></tr>
-            <tr><td class="num">10</td><td class="sk">schema-design</td><td class="ag">backend-builder</td><td class="st">M.3</td><td class="io">spec → module <code>data-model.md</code></td></tr>
+            <tr><td class="num">10</td><td class="sk">schema-design</td><td class="ag">backend-developer</td><td class="st">M.3</td><td class="io">spec → module <code>data-model.md</code></td></tr>
             <tr><td class="num">11</td><td class="sk">design-direction</td><td class="ag">ux-engineer</td><td class="st">M.4</td><td class="io">brd + design system → <code>design-spec.md</code> + canvas</td></tr>
             <tr><td class="num">12</td><td class="sk">api-contract</td><td class="ag">system-architect</td><td class="st">M.5</td><td class="io">spec + data model + design spec → <code>api-contract.md</code></td></tr>
-            <tr><td class="num">13</td><td class="sk">read-design-spec</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">design spec + canvas + inventory → build plan</td></tr>
-            <tr><td class="num">14</td><td class="sk">build-component</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">design spec → components, full state matrix</td></tr>
-            <tr><td class="num">15</td><td class="sk">compose-page</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">design spec + components → pages, routing</td></tr>
-            <tr><td class="num">16</td><td class="sk">wire-api-client</td><td class="ag">frontend-builder</td><td class="st">M.6a</td><td class="io">contract → typed client + mocks</td></tr>
-            <tr><td class="num">17</td><td class="sk">migrations</td><td class="ag">backend-builder</td><td class="st">M.6b</td><td class="io">data model → reversible migrations</td></tr>
-            <tr><td class="num">18</td><td class="sk">api-endpoint</td><td class="ag">backend-builder</td><td class="st">M.6b</td><td class="io">contract → handlers</td></tr>
-            <tr><td class="num">19</td><td class="sk">auth-authz</td><td class="ag">backend-builder</td><td class="st">M.6b</td><td class="io">brd permissions → authorization rules + negative tests</td></tr>
-            <tr><td class="num">20</td><td class="sk">amend-contract</td><td class="ag">system-architect</td><td class="st">M.6 ↺</td><td class="io">blocker → changelog entry + re-freeze</td></tr>
-            <tr><td class="num">21</td><td class="sk">swap-mocks</td><td class="ag">integrator</td><td class="st">M.7</td><td class="io">both branches → reconciliation, then real wiring</td></tr>
-            <tr><td class="num">22</td><td class="sk">e2e-verify</td><td class="ag">integrator</td><td class="st">M.7</td><td class="io">acceptance criteria → passing e2e suite</td></tr>
-            <tr><td class="num">23</td><td class="sk">drift-check</td><td class="ag">reviewer</td><td class="st">M.8</td><td class="io">module vs inventory → promote / refactor / accept</td></tr>
-            <tr><td class="num">24</td><td class="sk">promote-shared</td><td class="ag">frontend / backend-builder</td><td class="st">M.8</td><td class="io">rule-of-two hit → shared layer + both consumers refactored</td></tr>
-            <tr><td class="num">25</td><td class="sk">close-module</td><td class="ag">reviewer</td><td class="st">M.9</td><td class="io">module output → <code>summary.md</code> + <code>inventory.md</code></td></tr>
-            <tr><td class="num">26</td><td class="sk">client-brief</td><td class="ag">product-owner</td><td class="st">F.1 / M.9</td><td class="io">map or summary → client-facing scope brief or release note</td></tr>
+            <tr><td class="num">13</td><td class="sk">read-design-spec</td><td class="ag">frontend-developer</td><td class="st">M.6a</td><td class="io">design spec + canvas + inventory → build plan</td></tr>
+            <tr><td class="num">14</td><td class="sk">build-component</td><td class="ag">frontend-developer</td><td class="st">M.6a</td><td class="io">design spec → components, full state matrix</td></tr>
+            <tr><td class="num">15</td><td class="sk">compose-page</td><td class="ag">frontend-developer</td><td class="st">M.6a</td><td class="io">design spec + components → pages, routing</td></tr>
+            <tr><td class="num">16</td><td class="sk">wire-api-client</td><td class="ag">frontend-developer</td><td class="st">M.6a</td><td class="io">contract → typed client + mocks</td></tr>
+            <tr><td class="num">17</td><td class="sk">migrations</td><td class="ag">backend-developer</td><td class="st">M.6b</td><td class="io">data model → reversible migrations</td></tr>
+            <tr><td class="num">18</td><td class="sk">api-endpoint</td><td class="ag">backend-developer</td><td class="st">M.6b</td><td class="io">contract → handlers</td></tr>
+            <tr><td class="num">19</td><td class="sk">auth-authz</td><td class="ag">backend-developer</td><td class="st">M.6b</td><td class="io">brd permissions → authorization rules + negative tests</td></tr>
+            <tr><td class="num">20</td><td class="sk">write-test-cases</td><td class="ag">qa-analyst</td><td class="st">M.6c</td><td class="io">brd + design spec + contract → <code>test-cases.md</code></td></tr>
+            <tr><td class="num">21</td><td class="sk">amend-contract</td><td class="ag">system-architect</td><td class="st">M.6 ↺</td><td class="io">blocker → changelog entry + re-freeze</td></tr>
+            <tr><td class="num">22</td><td class="sk">swap-mocks</td><td class="ag">api-integrator</td><td class="st">M.7</td><td class="io">both branches → reconciliation, then real wiring</td></tr>
+            <tr><td class="num">23</td><td class="sk">e2e-verify</td><td class="ag">api-integrator</td><td class="st">M.7</td><td class="io">acceptance criteria → passing e2e suite</td></tr>
+            <tr><td class="num">24</td><td class="sk">drift-check</td><td class="ag">code-reviewer</td><td class="st">M.8</td><td class="io">module vs inventory → promote / refactor / accept</td></tr>
+            <tr><td class="num">25</td><td class="sk">promote-shared</td><td class="ag">frontend / backend-developer</td><td class="st">M.8</td><td class="io">rule-of-two hit → shared layer + both consumers refactored</td></tr>
+            <tr><td class="num">26</td><td class="sk">execute-tests</td><td class="ag">qa-tester</td><td class="st">M.9</td><td class="io">test cases + running app → <code>test-report.md</code> + bugs</td></tr>
+            <tr><td class="num">27</td><td class="sk">regression-suite</td><td class="ag">qa-tester</td><td class="st">M.9</td><td class="io"><code>regression-suite.md</code> run → this module's P0 cases added</td></tr>
+            <tr><td class="num">28</td><td class="sk">fix-bugs</td><td class="ag">frontend / backend-developer, product-owner</td><td class="st">M.9 ↺</td><td class="io"><code>bugs.md</code> → fix + reproducing test, status <code>fixed</code></td></tr>
+            <tr><td class="num">29</td><td class="sk">close-module</td><td class="ag">code-reviewer</td><td class="st">M.10</td><td class="io">module output → <code>summary.md</code> + <code>inventory.md</code></td></tr>
+            <tr><td class="num">30</td><td class="sk">client-brief</td><td class="ag">product-owner</td><td class="st">F.1 / M.10</td><td class="io">map or summary → client-facing scope brief or release note</td></tr>
           </tbody>
         </table>
       </div>
@@ -946,7 +995,7 @@ flowchart TD
     </section>
 
     <footer>
-      <span>agent-fleet v0.1.0 · 7 agents · 26 skills · 12 templates · 3 commands</span>
+      <span>agent-fleet v0.3.0 · 9 agents · 30 skills · 17 templates · 3 commands</span>
       <span>~/Documents/Projects/agent-fleet</span>
     </footer>
   </main>

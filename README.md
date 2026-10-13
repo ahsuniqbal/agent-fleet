@@ -1,6 +1,6 @@
 # agent-fleet
 
-A delivery pipeline as a Claude Code plugin. Seven role agents, twenty-six skills, and a
+A delivery pipeline as a Claude Code plugin. Nine role agents, thirty skills, and a
 document spine that carries a client brief from first call to shipped modules.
 
 Built around one constraint: **modules ship one at a time, in dependency order.** Throughput
@@ -8,7 +8,7 @@ is not the goal — consistency is. Module 7 must look like module 1.
 
 ## Pipeline reference
 
-[pipeline.html](pipeline.html) is the whole pipeline on one page — flow diagram, all sixteen
+[pipeline.html](pipeline.html) is the whole pipeline on one page — flow diagram, all seventeen
 stages, the eight human gates, the agent roster, and the skill index. Open it in a browser
 straight from the repo; it is a single self-contained file with no build step.
 
@@ -55,6 +55,8 @@ docs/
     design-system.md    tokens
     data-model.md       shared entities only
     inventory.md        THE REUSE LEDGER — read at the start of every module
+    test-env.md         how QA starts the app, roles and test users
+    regression-suite.md earlier modules' P0 cases, run at every module's QA
     CHANGELOG.md        what got promoted to shared, and when
   modules/
     01-<name>/
@@ -63,6 +65,10 @@ docs/
       design-spec.md    tokens, component inventory, states, breakpoints
       data-model.md     module-owned tables only
       api-contract.md   frozen before build starts
+      test-cases.md     FE + API test cases, traced to the BRD
+      test-report.md    QA run log — what each run executed and saw
+      bugs.md           bug log — open → fixed → verified / reopened
+      qa-evidence/      screenshots + request/response, one folder per run
       summary.md        written at close, feeds the inventory
 ```
 
@@ -76,9 +82,9 @@ Templates for all of these are in [templates/](templates/).
 | F.1 | product-owner | `module-decomposition` | `00-global/module-map.md` |
 | F.2 | system-architect | `service-design` | `00-global/architecture.md` |
 | F.3 | ux-engineer | `design-system` | `00-global/design-system.md` |
-| F.4 | ux-engineer + frontend-builder | `component-library` | primitives only |
-| F.5 | backend-builder | `foundation-schema` | `00-global/data-model.md` |
-| F.6 | backend-builder | `project-skeleton` | repo, routing, CI, migration runner |
+| F.4 | ux-engineer + frontend-developer | `component-library` | primitives only |
+| F.5 | backend-developer | `foundation-schema` | `00-global/data-model.md` |
+| F.6 | backend-developer | `project-skeleton` | repo, routing, CI, migration runner, seed + `test-env.md` |
 
 Human gates: client agrees scope after F.0; you approve build order after F.1; you freeze the
 foundation after F.4/F.6.
@@ -90,17 +96,24 @@ foundation after F.4/F.6.
 | M.0 | *all* | read `00-global/inventory.md` |
 | M.1 | product-owner | `write-brd` |
 | M.2 | system-architect | `groom-module` |
-| M.3 | backend-builder | `schema-design` |
+| M.3 | backend-developer | `schema-design` |
 | M.4 | ux-engineer | `design-direction` |
 | M.5 | system-architect | `api-contract` → **freeze** |
-| M.6a | frontend-builder | `read-design-spec`, `build-component`, `compose-page`, `wire-api-client` |
-| M.6b | backend-builder | `migrations`, `api-endpoint`, `auth-authz` |
-| M.7 | integrator | `swap-mocks`, `e2e-verify` |
-| M.8 | reviewer | `drift-check` + `/code-review` |
-| M.9 | reviewer | `close-module` |
+| M.6a | frontend-developer | `read-design-spec`, `build-component`, `compose-page`, `wire-api-client` |
+| M.6b | backend-developer | `migrations`, `api-endpoint`, `auth-authz` |
+| M.6c | qa-analyst | `write-test-cases` |
+| M.7 | api-integrator | `swap-mocks`, `e2e-verify` |
+| M.8 | code-reviewer | `drift-check` + `/code-review` |
+| M.9 ↺ | qa-tester ⇄ owners | `execute-tests`, `regression-suite`, `fix-bugs` |
+| M.10 | code-reviewer | `close-module` |
 
-M.6a and M.6b run in parallel. That is the only parallelism in the pipeline, and the frozen
-contract at M.5 is what makes it safe.
+M.6a, M.6b, and M.6c run in parallel. That is the only parallelism in the pipeline, and the
+frozen contract at M.5 is what makes it safe.
+
+QA is black box. The M.7 e2e suite stays in the codebase as the automated net; `qa-tester` at
+M.9 checks the running app independently — browser for the UI, raw HTTP for the API — and
+files bugs in `bugs.md`. Owners fix them with `fix-bugs` (each with a reproducing automated
+test), `qa-tester` retests and verifies or reopens — at most three runs, then it escalates.
 
 ## The three rules
 
@@ -119,10 +132,12 @@ contract at M.5 is what makes it safe.
 | `product-owner` | opus | Business truth: requirements → modules → BRDs |
 | `system-architect` | opus | Technical boundaries and contracts |
 | `ux-engineer` | opus | Design system and per-module design intent |
-| `frontend-builder` | sonnet | UI implementation against mocks |
-| `backend-builder` | sonnet | Data and API implementation |
-| `integrator` | sonnet | Mocks → real, end-to-end verification |
-| `reviewer` | opus | Cross-module consistency and the reuse ledger |
+| `frontend-developer` | sonnet | UI implementation against mocks |
+| `backend-developer` | sonnet | Data and API implementation |
+| `api-integrator` | sonnet | Mocks → real, end-to-end verification |
+| `code-reviewer` | opus | Cross-module consistency and the reuse ledger |
+| `qa-analyst` | opus | Test cases from the BRD, design spec, and contract |
+| `qa-tester` | sonnet | Black-box QA in the browser and over HTTP, regression |
 
 ## Commands
 
@@ -134,3 +149,7 @@ contract at M.5 is what makes it safe.
 
 Fill in [CONVENTIONS.md](CONVENTIONS.md). Agents read it before writing code, and any field
 left as `TBD` becomes a question they must ask instead of a guess they will get wrong.
+
+`qa-tester` drives the browser through the Playwright MCP server bundled in
+[.mcp.json](.mcp.json). It needs Node.js; on first use, `npx` downloads the server and its
+browser.

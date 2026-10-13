@@ -5,9 +5,9 @@ description: Stand up the runnable project shell — repository layout, routing,
 
 # Project skeleton
 
-**Stage:** F.6 · **Agent:** backend-builder
+**Stage:** F.6 · **Agent:** backend-developer
 **Reads:** `CONVENTIONS.md`, `docs/00-global/architecture.md`, `docs/00-global/data-model.md`
-**Writes:** the repository itself
+**Writes:** the repository itself, `docs/00-global/test-env.md`
 
 ## Rule
 
@@ -34,6 +34,9 @@ stack is expensive to unwind after module 1.
 10. **Linter and formatter** configured to `CONVENTIONS.md`, with a pre-commit path.
 11. **CI** — install, lint, typecheck, test, build. Green on the first commit.
 12. **README** — how to install, configure, run, migrate, test.
+13. **Seed script and test users** — one test user per role, idempotent, resettable — documented
+    in `docs/00-global/test-env.md` (template: `templates/00-test-env.md`). `qa-tester` starts
+    the app from that file alone.
 
 ## Checklist
 
@@ -47,6 +50,7 @@ stack is expensive to unwind after module 1.
 - [ ] `.gitignore` covers env files, build output, dependencies, editor and OS files
 - [ ] Smoke tests pass in both runners
 - [ ] README lets someone else start from zero
+- [ ] `test-env.md` written; seed runs and every test user can sign in
 
 ## Failure modes
 
@@ -61,4 +65,5 @@ stack is expensive to unwind after module 1.
 
 Foundation is frozen after this. Seed `docs/00-global/inventory.md` with the primitives from
 F.4, the entities from F.5, and the patterns decided in `architecture.md` — pagination style,
-error shape, logging, audit. Module 1 starts at M.0 by reading it.
+error shape, logging, audit. Create an empty `docs/00-global/regression-suite.md` from its
+template. Module 1 starts at M.0 by reading the inventory.

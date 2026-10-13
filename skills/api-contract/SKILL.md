@@ -14,9 +14,9 @@ description: Author the frozen API contract for one module — endpoints, reques
 
 It reads the **data model** so schemas describe fields that actually exist. It reads the
 **design spec** so endpoints return the fields the screens actually need. Written before
-either, it would be a guess that both builders then work around.
+either, it would be a guess that both developers then work around.
 
-Once frozen, both builders start. The frontend generates mocks from this document; the backend
+Once frozen, both developers start. The frontend generates mocks from this document; the backend
 implements against it. That parallelism is the only parallelism in the pipeline, and this
 document is what makes it safe.
 
@@ -71,5 +71,6 @@ document is what makes it safe.
 
 ## Handoff
 
-Human freezes. Then M.6a and M.6b start in parallel. Any blocker on either side routes to
-`amend-contract` — never to a local workaround.
+Human freezes. Then M.6a and M.6b start in parallel, with `qa-analyst` writing test cases from
+this contract at M.6c. Any blocker on either build side routes to `amend-contract` — never to a
+local workaround.

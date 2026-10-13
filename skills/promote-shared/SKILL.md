@@ -5,7 +5,7 @@ description: Move a component, service, hook, or utility into the shared layer w
 
 # Promote shared
 
-**Stage:** M.8 · **Agents:** frontend-builder or backend-builder
+**Stage:** M.8 · **Agents:** frontend-developer or backend-developer
 **Reads:** `drift-check` verdicts, `docs/00-global/inventory.md`, `CONVENTIONS.md`
 **Writes:** the shared library, refactored consumers, `inventory.md`, `00-global/CHANGELOG.md`
 

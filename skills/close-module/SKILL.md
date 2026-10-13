@@ -1,12 +1,13 @@
 ---
 name: close-module
-description: Close a shipped module by writing its summary and folding everything reusable into the global inventory index, so the next module's agents know what already exists. Use at stage M.9, the final step of every module loop. The mechanism that makes serial delivery accumulate instead of repeat.
+description: Close a shipped module by writing its summary and folding everything reusable into the global inventory index, so the next module's agents know what already exists. Use at stage M.10, the final step of every module loop. The mechanism that makes serial delivery accumulate instead of repeat.
 ---
 
 # Close module
 
-**Stage:** M.9 · **Agent:** reviewer
-**Reads:** everything the module produced, `drift-check` verdicts, promotions
+**Stage:** M.10 · **Agent:** code-reviewer
+**Reads:** everything the module produced, `drift-check` verdicts, promotions,
+`test-report.md`, `bugs.md`
 **Writes:** `docs/modules/NN/summary.md` (template: `templates/module-summary.md`),
 `docs/00-global/inventory.md`, `docs/00-global/CHANGELOG.md`
 
@@ -47,7 +48,8 @@ Entry format — one line, scannable:
 
 Detail the index cannot carry: what was built and why, decisions taken and rejected, deviations
 from the spec with reasons, `accept` verdicts from drift-check with their justifications,
-contract amendments and what caused them, known limitations, performance notes, and anything the
+contract amendments and what caused them, the QA outcome (runs taken, bugs found by owner, bugs
+deferred at the gate, cases added to the regression suite), known limitations, performance notes, and anything the
 next module should know before touching this code.
 
 ## Hygiene
@@ -68,6 +70,7 @@ otherwise.
 - [ ] Deferred items and known gaps recorded with a suggested revisit point
 - [ ] `accept` verdicts carried into the summary with justifications
 - [ ] Contract amendments summarised
+- [ ] QA outcome summarised; deferred bugs carried into the inventory's Deferred section
 - [ ] Entries are one line each and point at the summary for detail
 - [ ] `CHANGELOG.md` updated with promotions and global changes
 - [ ] Inventory still under the line budget, or split

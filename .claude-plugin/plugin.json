@@ -1,7 +1,7 @@
 {
   "name": "agent-fleet",
-  "description": "Serial, module-by-module delivery pipeline: 7 role agents and 26 skills that carry a client brief from requirements to shipped modules through a versioned document spine.",
-  "version": "0.2.0",
+  "description": "Serial, module-by-module delivery pipeline: 9 role agents and 30 skills that carry a client brief from requirements to shipped modules through a versioned document spine.",
+  "version": "0.3.0",
   "author": {
     "name": "Ahsun Iqbal"
   }

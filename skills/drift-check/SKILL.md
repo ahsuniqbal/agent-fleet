@@ -5,7 +5,7 @@ description: Audit a finished module for consistency against the global inventor
 
 # Drift check
 
-**Stage:** M.8 · **Agent:** reviewer
+**Stage:** M.8 · **Agent:** code-reviewer
 **Reads:** the finished module, `docs/00-global/inventory.md`,
 `docs/00-global/design-system.md`, `docs/00-global/data-model.md`, `CONVENTIONS.md`,
 `docs/modules/NN/spec.md` reuse plan
@@ -32,13 +32,18 @@ reads like several different applications stitched together.
 | **Auth pattern drift** | A second authorization mechanism, or checks placed differently |
 | **Client layer drift** | A second HTTP client, a second error normaliser |
 
+## Re-run on a structural fix
+
+During the M.9 QA loop, a bug fix marked `structural` in `bugs.md` gets a drift-check scoped to
+the fix diff before `qa-tester` retests. Local fixes do not.
+
 ## Verdicts
 
 - **promote** — a rule-of-two hit: a second module now needs this. Hand to `promote-shared`.
 - **refactor** — real drift with no upside. Must be fixed before shipping: hardcoded values,
   duplicated components, convention violations.
 - **accept** — a deliberate, justified difference. Record the justification in the module summary
-  so the next reviewer does not re-raise it.
+  so the next code-reviewer does not re-raise it.
 
 ## Procedure
 
@@ -75,5 +80,5 @@ reads like several different applications stitched together.
 
 ## Handoff
 
-`promote-shared` executes the promotions. Then the human ships and `close-module` records
-everything in the ledger.
+`promote-shared` executes the promotions. Then `qa-tester` runs black-box QA at M.9, the human
+ships, and `close-module` records everything in the ledger at M.10.

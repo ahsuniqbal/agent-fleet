@@ -5,7 +5,7 @@ description: Generate a typed API client and realistic mocks directly from the f
 
 # Wire API client
 
-**Stage:** M.6a · **Agent:** frontend-builder
+**Stage:** M.6a · **Agent:** frontend-developer
 **Reads:** `docs/modules/NN/api-contract.md`, `docs/00-global/inventory.md`, `CONVENTIONS.md`
 **Writes:** typed API client, request and response types, mock handlers, fixtures
 
@@ -35,7 +35,7 @@ mismatch and costs more to diagnose than to have raised.
 5. **Fixtures must be realistic.** Long names, missing optional fields, unicode, very large
    numbers, empty strings, dates across timezones. Sanitised fixtures hide the defects the UI
    will meet on day one.
-6. **Mark the swap points** clearly so `integrator` can find every one of them at M.7.
+6. **Mark the swap points** clearly so `api-integrator` can find every one of them at M.7.
 
 ## Checklist
 
@@ -60,5 +60,5 @@ mismatch and costs more to diagnose than to have raised.
 
 ## Handoff
 
-`integrator` at M.7 replaces mocks with real calls and reconciles any divergence against this
+`api-integrator` at M.7 replaces mocks with real calls and reconciles any divergence against this
 same contract.

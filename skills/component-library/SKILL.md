@@ -5,7 +5,7 @@ description: Build the primitive component set from the design tokens — roughl
 
 # Component library
 
-**Stage:** F.4 · **Agents:** ux-engineer + frontend-builder
+**Stage:** F.4 · **Agents:** ux-engineer + frontend-developer
 **Reads:** `docs/00-global/design-system.md`, `CONVENTIONS.md`
 **Writes:** the shared component library in code, plus the **Components** section of
 `docs/00-global/inventory.md`

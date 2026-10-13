@@ -65,7 +65,7 @@ When <action>
 Then <observable outcome>
 ```
 
-Include the unhappy paths. These become the e2e suite at M.7.
+Include the unhappy paths. These become the e2e suite at M.7 and the QA test cases at M.6c.
 
 ## Permission matrix
 

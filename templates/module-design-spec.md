@@ -1,6 +1,6 @@
 # Design spec — <NN> <module name>
 
-Machine-readable handoff to `frontend-builder`. Pairs with the canvas: **spec first for intent,
+Machine-readable handoff to `frontend-developer`. Pairs with the canvas: **spec first for intent,
 canvas second for values.**
 
 Every value is a token name from `00-global/design-system.md`. If a token is missing, add it
@@ -32,7 +32,7 @@ Interaction states for controls: hover, focus-visible, active, disabled.
 
 ## Data binding
 
-What the builder would otherwise guess.
+What the developer would otherwise guess.
 
 | Element | Source endpoint | Response field | Transform |
 |---|---|---|---|

@@ -23,9 +23,9 @@ Client input: $ARGUMENTS
 | 🚦 | — | — | **STOP.** Present the build queue with reasons. Wait for the user to approve or edit `order:`. |
 | F.2 | `system-architect` | `service-design` | `docs/00-global/architecture.md` |
 | F.3 | `ux-engineer` | `design-system` | `docs/00-global/design-system.md` |
-| F.4 | `ux-engineer` + `frontend-builder` | `component-library` | primitives only |
-| F.5 | `backend-builder` | `foundation-schema` | `docs/00-global/data-model.md` |
-| F.6 | `backend-builder` | `project-skeleton` | repo, routing, CI, migration runner |
+| F.4 | `ux-engineer` + `frontend-developer` | `component-library` | primitives only |
+| F.5 | `backend-developer` | `foundation-schema` | `docs/00-global/data-model.md` |
+| F.6 | `backend-developer` | `project-skeleton` | repo, routing, CI, migration runner, seed + `test-env.md` |
 | 🚦 | — | — | **STOP.** Foundation frozen. |
 
 F.3→F.4 and F.5→F.6 are independent chains and may run concurrently after F.2.

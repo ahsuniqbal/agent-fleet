@@ -51,7 +51,8 @@ shipped, say so explicitly: "same pattern as the list view in module 02". This i
 ## Acceptance criteria
 
 Every feature ends with Given/When/Then criteria, including the unhappy paths. These become the
-e2e suite at M.7 — they are executable specification, not description.
+e2e suite at M.7 and `qa-analyst`'s test cases at M.6c — they are executable specification, not
+description.
 
 ```
 Given a user with the "viewer" role
@@ -81,7 +82,7 @@ If you cannot write a testable criterion for a requirement, it is not ready to b
 - **Permissions as an afterthought.** Retrofitting authorization is expensive and dangerous.
 - **"The system should handle errors gracefully."** Not a requirement. Name the errors.
 - **Missing empty states.** Every list needs one, and the client always notices.
-- **Untestable criteria.** If the integrator cannot turn it into a test, rewrite it.
+- **Untestable criteria.** If the api-integrator cannot turn it into a test, rewrite it.
 
 ## Handoff
 

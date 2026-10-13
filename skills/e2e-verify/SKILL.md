@@ -5,7 +5,7 @@ description: Turn a module's BRD acceptance criteria into passing end-to-end tes
 
 # E2E verify
 
-**Stage:** M.7 · **Agent:** integrator
+**Stage:** M.7 · **Agent:** api-integrator
 **Reads:** `docs/modules/NN/brd.md` acceptance criteria, `docs/modules/NN/api-contract.md`,
 `CONVENTIONS.md`
 **Writes:** end-to-end tests and a verification report
@@ -78,4 +78,5 @@ to fix the problem before the client finds it.
 
 ## Handoff
 
-`drift-check` and `/code-review` at M.8, then the human ships and demos.
+`drift-check` and `/code-review` at M.8, then black-box QA by `qa-tester` at M.9. This suite
+stays in the codebase as the automated net; QA does not replace it and does not run it.

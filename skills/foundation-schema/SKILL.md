@@ -5,7 +5,7 @@ description: Define the shared entities that multiple modules will reference —
 
 # Foundation schema
 
-**Stage:** F.5 · **Agent:** backend-builder
+**Stage:** F.5 · **Agent:** backend-developer
 **Reads:** `docs/00-global/architecture.md`, `docs/00-global/module-map.md`, `CONVENTIONS.md`
 **Writes:** `docs/00-global/data-model.md` (template: `templates/00-data-model.md`)
 

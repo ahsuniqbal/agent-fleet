@@ -1,11 +1,11 @@
 ---
 name: client-brief
-description: Produce a client-facing document from internal artifacts — a scope proposal after decomposition, or a release note after a module ships. Use after F.1 or at stage M.9. Translates internal detail into something a non-technical client can act on.
+description: Produce a client-facing document from internal artifacts — a scope proposal after decomposition, or a release note after a module ships. Use after F.1 or at stage M.10. Translates internal detail into something a non-technical client can act on.
 ---
 
 # Client brief
 
-**Stage:** after F.1, or M.9 · **Agent:** product-owner
+**Stage:** after F.1, or M.10 · **Agent:** product-owner
 **Reads:** `docs/00-global/module-map.md`, `docs/modules/NN/brd.md`,
 `docs/modules/NN/summary.md`
 **Writes:** a client-facing document (outside `docs/`, or wherever the client receives it)
@@ -15,7 +15,7 @@ description: Produce a client-facing document from internal artifacts — a scop
 | Form | When | Purpose |
 |---|---|---|
 | **Scope brief** | after F.1 | what will be built, in what order, and why that order |
-| **Release note** | at M.9 | what shipped, what it does, what is next |
+| **Release note** | at M.10 | what shipped, what it does, what is next |
 
 ## Rules
 
